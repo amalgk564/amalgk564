@@ -1,0 +1,77 @@
+#reading df from excel
+
+df = pd.read_excel(DTA,header=[0,1,2], sheet_name='Sheet Name')
+
+#combinnig df by Col header
+
+combined_df = pd.concat([df1,df2,..., dfn])
+
+#Drop Blank based on coloumn - 3 header
+Based on one coloumn
+df.dropna(subset=[('Header1', 'Header2', 'Header3')], inplace=True)
+
+Based on multiple coloumn
+df = df.dropna(axis = 0, how ='all')
+
+
+#rename COloumn Header
+df.rename(columns={'Model': 'GMCF Product'}, inplace=True)
+
+#alinging 2 df's
+NAload_df, combined_df = NAload_df.align(combined_df, axis=1, copy=False)
+
+#Replacing Values in DF
+
+df = pd.read_excel(SD+'\Combined GPO report.xlsx')
+df["Market"] = df["Market"].str.replace('NA Blue Exports - ','')
+df["Market"] = df["Market"].str.replace('NA Model E Exports - ','')
+
+#Removing NA in df
+
+
+
+#Removing Duplicates
+df = df.drop_duplicates()
+
+
+#savinf df to excel
+df.to_excel(SD+'\File Name.xlsx', index=False)
+
+#alinging 2 df's & Vloookup based on 1 coloumn- replaing with new values
+
+Input_df, combined_df = Input_df.align(combined_df, axis=1, copy=False)
+
+
+for i, row in combined_df.iterrows():
+    match = (Input_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')]).any(axis=0)
+    if match:
+        INput_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','EM')]
+        Input_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','LM')]
+        Input_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','EM')]
+        Input_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','LM')]
+        Input_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','EM')]
+        Input_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','LM')]
+
+#copying data from df to excel directly
+for i in range(9, 170):
+            cell1 = Sheet1.cell(row=i, column=3)
+            cell1.value = Export_Mix_Load_df.iloc[i-9, 1]
+            cell2 = Sheet2.cell(row=i, column=3)
+            cell2.value = Export_Mix_Load_df.iloc[i-9, 2]
+            cell3 = Sheet3.cell(row=i, column=3)
+            cell3.value = Export_Mix_Load_df.iloc[i-9, 3]
+            cell4 = Sheet4.cell(row=i, column=3)
+            cell4.value = Export_Mix_Load_df.iloc[i-9, 4]
+            cell5 = Sheet5.cell(row=i, column=3)
+            cell5.value = Export_Mix_Load_df.iloc[i-9, 5]
+
+#creating a new poop up to feed data
+
+def get_Current_Month1():
+    new_col_name = simpledialog.askstring(title="Actuals Month", prompt="Enter the Current Month:")
+    return new_col_name
+
+root = tk.Tk()
+root.withdraw()
+
+Current_Month1 = get_Current_Month1()
