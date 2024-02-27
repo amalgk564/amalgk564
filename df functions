@@ -18,7 +18,7 @@ df = df.dropna(axis = 0, how ='all')
 df.rename(columns={'Model': 'GMCF Product'}, inplace=True)
 
 #alinging 2 df's
-NAload_df, combined_df = NAload_df.align(combined_df, axis=1, copy=False)
+INput_df, combined_df = INput_df.align(combined_df, axis=1, copy=False)
 
 #Replacing Values in DF
 
@@ -45,12 +45,12 @@ Input_df, combined_df = Input_df.align(combined_df, axis=1, copy=False)
 for i, row in combined_df.iterrows():
     match = (Input_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')]).any(axis=0)
     if match:
-        INput_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','EM')]
-        Input_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','LM')]
-        Input_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','EM')]
-        Input_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','LM')]
-        Input_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','EM')]
-        Input_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','LM')]
+        INput_df.loc[Input_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','EM')]
+        INput_df.loc[INput_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','LM')]
+        INput_df.loc[INput_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','EM')]
+        INput_df.loc[INput_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','LM')]
+        INput_df.loc[INput_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','EM')]
+        INput_df.loc[INput_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','LM')]
 
 #copying data from df to excel directly
 for i in range(9, 170):
