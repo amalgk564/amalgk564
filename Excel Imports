@@ -1,0 +1,37 @@
+#IMPORTING Libraries
+
+import pandas as pd
+import openpyxl as py
+import tkinter as tk
+from tkinter import filedialog
+from tkinter import *
+root = Tk()
+
+#IMporting a file
+SD=tk.filedialog.askdirectory(title="Select folder to save output file")
+DTA=tk.filedialog.askopenfilename(initialdir="/",title="Input Turkey Source ",filetypes=(("Excel files","*.xlsx"),("allfiles","*.*")))
+root.destroy()
+I1=DTA.get_sheet_by_name('Per Unit')
+O1=OP1.get_sheet_by_name('Database')
+
+
+#Copying a data
+for i in range(5,I1.max_row+1):
+    O1.cell(row=i,column=1).value=I1.cell(row=i,column=3).value
+    O1.cell(row=i,column=2).value=I1.cell(row=i,column=2).value
+    O1.cell(row=i,column=3).value=I1.cell(row=i,column=4).value
+    O1.cell(row=i,column=4).value=I1.cell(row=i,column=6).value
+    O1.cell(row=i,column=5).value=I1.cell(row=i,column=7).value
+    O1.cell(row=i,column=6).value=I1.cell(row=i,column=8).value
+    O1.cell(row=i,column=7).value=I1.cell(row=i,column=9).value
+    O1.cell(row=i,column=8).value=I1.cell(row=i,column=10).value
+    O1.cell(row=i,column=9).value=I1.cell(row=i,column=11).value
+    O1.cell(row=i,column=10).value=I1.cell(row=i,column=12).value
+    O1.cell(row=i,column=11).value=I1.cell(row=i,column=13).value
+    O1.cell(row=i,column=12).value=I1.cell(row=i,column=14).value
+    O1.cell(row=i,column=13).value=I1.cell(row=i,column=15).value
+    O1.cell(row=i,column=14).value=I1.cell(row=i,column=16).value
+    O1.cell(row=i,column=15).value=I1.cell(row=i,column=17).value
+
+
+
