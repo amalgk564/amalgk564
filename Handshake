@@ -1,0 +1,520 @@
+import pandas as pd
+import openpyxl as py
+import tkinter as tk
+from tkinter import filedialog
+from tkinter import *
+
+root = Tk()
+SD=tk.filedialog.askdirectory(title="Select folder to save output file")
+DTA = tk.filedialog.askopenfilename(initialdir="/", title="Mix file for Handshake", filetypes=(("allfiles", "*.xlsx"), ("allfiles", "*.*")))
+output_file = tk.filedialog.askopenfilename(initialdir="/", title="Select output file", filetypes=(("allfiles", "*.xlsx"), ("allfiles", "*.*")))
+root.destroy()
+
+
+MachE_df = pd.read_excel(DTA,header=[6,7,8], sheet_name='CX727 (Mach E)')
+MachE_final_df = MachE_df[['Cumulative Mix Nos - Current Issue', 'Market']]
+MachE_final_df['Model'] = 'Mustang Mach-E (CX727)'
+MachE_final_df['Assembly Source'] = 'Cuautitlan'
+
+
+P702_F150_df = pd.read_excel(DTA,header=[6,7,8], sheet_name='P702 (F150)')
+P702_F150_final_df = P702_F150_df[['Cumulative Mix Nos - Current Issue', 'Market']]
+P702_F150_final_df['Model'] = 'F150 Total'
+P702_F150_final_df['Assembly Source'] = 'Dearborn Truck'
+
+U625_Explorer_df = pd.read_excel(DTA,header=[6,7,8], sheet_name='U625 (Explorer)')
+U625_Explorer_final_df = U625_Explorer_df[['Cumulative Mix Nos - Current Issue', 'Market']]
+U625_Explorer_final_df['Model'] = 'Explorer Total'
+U625_Explorer_final_df['Assembly Source'] = 'Chicago Assembly'
+
+
+FTM_P703_Ranger_df = pd.read_excel(DTA,header=[6,7,8], sheet_name='FTM P703 (Ranger)')
+FTM_P703_Ranger_final_df = FTM_P703_Ranger_df[['Cumulative Mix Nos - Current Issue', 'Market']]
+FTM_P703_Ranger_final_df['Model'] = 'Ranger (P375)'
+FTM_P703_Ranger_final_df['Assembly Source'] = 'FTM'
+
+Ranger_Base_Mix_P703_FSA_df = pd.read_excel(DTA,header=[6,7,8], sheet_name='Ranger Base Mix P703 FSA')
+Ranger_Base_Mix_P703_FSA_final_df = Ranger_Base_Mix_P703_FSA_df[['Cumulative Mix Nos - Current Issue', 'Market']]
+Ranger_Base_Mix_P703_FSA_final_df['Model'] = 'Ranger (P375)'
+Ranger_Base_Mix_P703_FSA_final_df['Assembly Source'] = 'Silverton'
+
+
+U725_Bronco_df = pd.read_excel(DTA,header=[6,7,8], sheet_name='U725 (Bronco)')
+U725_Bronco_final_df = U725_Bronco_df[['Cumulative Mix Nos - Current Issue', 'Market']]
+U725_Bronco_final_df['Model'] = 'Bronco Total'
+U725_Bronco_final_df['Assembly Source'] = 'Michigan Assy'
+
+Mustang_df = pd.read_excel(DTA,header=[1,2,3], sheet_name='Mustang GMCF Load Sheet (2)')
+Mustang_final_df = Mustang_df[['Cumulative Mix Nos - Current Issue', 'Market']]
+Mustang_final_df['Model'] = 'Mustang Total'
+Mustang_final_df['Assembly Source'] = 'Flat Rock Assembly'
+
+
+MachE_final_df
+P702_F150_final_df
+U625_Explorer_final_df
+FTM_P703_Ranger_final_df
+Ranger_Base_Mix_P703_FSA_final_df
+U725_Bronco_final_df
+Mustang_final_df
+
+
+combined_df = pd.concat([MachE_final_df,Mustang_final_df, P702_F150_final_df, U625_Explorer_final_df, FTM_P703_Ranger_final_df, Ranger_Base_Mix_P703_FSA_final_df, U725_Bronco_final_df])
+combined_df.dropna(subset=[('Market', 'Market', 'Market')], inplace=True)
+combined_df.rename(columns={'Model': 'GMCF Product'}, inplace=True)
+combined_df.rename(columns={'Cumulative Mix Nos - Current Issue': '2023 Cumulative Mix Variance to CSP'}, inplace=True)
+combined_df['Concatenate','Concatenate','Concatenate'] = combined_df['GMCF Product'].astype(str) + combined_df['Assembly Source'].astype(str) + combined_df['Market','Market','Market'].astype(str)
+
+combined_df.to_excel(SD+'\Cumilative Mix per unit.xlsx', index=True)
+
+
+NAload_df = pd.read_excel(output_file, header=[3,4,5], sheet_name='NA Load')
+
+NAload_df.rename(columns={'Unnamed: 0_level_0': 'Concatenate'}, inplace=True)
+NAload_df.rename(columns={'Unnamed: 0_level_2': 'Concatenate'}, inplace=True)
+NAload_df.rename(columns={'Unnamed: 4_level_0': 'Market'}, inplace=True)
+NAload_df.rename(columns={'Unnamed: 4_level_2': 'Market'}, inplace=True)
+NAload_df.rename(columns={'Unnamed: 2_level_0': 'GMCF Product'}, inplace=True)
+NAload_df.rename(columns={'Unnamed: 3_level_0': 'Assembly Source'}, inplace=True)
+NAload_df.rename(columns={'Unnamed: 1_level_0': 'IMPRS Product'}, inplace=True)
+
+
+
+
+NAload_df, combined_df = NAload_df.align(combined_df, axis=1, copy=False)
+
+
+for i, row in combined_df.iterrows():
+    match = (NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')]).any(axis=0)
+    if match:
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','EM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','LM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','EM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','LM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Mar','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Mar','EM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Mar','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Mar','LM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Apr','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Apr','EM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Apr','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Apr','LM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'May','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'May','EM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'May','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'May','LM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jun','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jun','EM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jun','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jun','LM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jul','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jul','EM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jul','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jul','LM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Aug','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Aug','EM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Aug','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Aug','LM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Sep','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Sep','EM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Sep','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Sep','LM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Oct','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Oct','EM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Oct','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Oct','LM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Nov','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Nov','EM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Nov','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Nov','LM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','EM')]
+        NAload_df.loc[NAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','LM')]
+
+
+EUload_df = pd.read_excel(output_file, header=[3,4,5], sheet_name='EU Load')
+
+
+EUload_df.rename(columns={'Unnamed: 0_level_0': 'Concatenate'}, inplace=True)
+EUload_df.rename(columns={'Unnamed: 0_level_2': 'Concatenate'}, inplace=True)
+EUload_df.rename(columns={'Unnamed: 4_level_0': 'Market'}, inplace=True)
+EUload_df.rename(columns={'Unnamed: 4_level_2': 'Market'}, inplace=True)
+EUload_df.rename(columns={'Unnamed: 2_level_0': 'GMCF Product'}, inplace=True)
+EUload_df.rename(columns={'Unnamed: 3_level_0': 'Assembly Source'}, inplace=True)
+EUload_df.rename(columns={'Unnamed: 1_level_0': 'IMPRS Product'}, inplace=True)
+
+
+
+
+EUload_df, combined_df = EUload_df.align(combined_df, axis=1, copy=False)
+
+
+for i, row in combined_df.iterrows():
+    match = (EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')]).any(axis=0)
+    if match:
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','EM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','LM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','EM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','LM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Mar','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Mar','EM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Mar','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Mar','LM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Apr','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Apr','EM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Apr','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Apr','LM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'May','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'May','EM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'May','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'May','LM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jun','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jun','EM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jun','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jun','LM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jul','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jul','EM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jul','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jul','LM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Aug','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Aug','EM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Aug','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Aug','LM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Sep','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Sep','EM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Sep','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Sep','LM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Oct','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Oct','EM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Oct','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Oct','LM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Nov','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Nov','EM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Nov','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Nov','LM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','EM')]
+        EUload_df.loc[EUload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','LM')]
+
+
+APload_df = pd.read_excel(output_file, header=[3,4,5], sheet_name='AP Load')
+
+APload_df.rename(columns={'Unnamed: 0_level_0': 'Concatenate'}, inplace=True)
+APload_df.rename(columns={'Unnamed: 0_level_2': 'Concatenate'}, inplace=True)
+APload_df.rename(columns={'Unnamed: 4_level_0': 'Market'}, inplace=True)
+APload_df.rename(columns={'Unnamed: 4_level_2': 'Market'}, inplace=True)
+APload_df.rename(columns={'Unnamed: 2_level_0': 'GMCF Product'}, inplace=True)
+APload_df.rename(columns={'Unnamed: 3_level_0': 'Assembly Source'}, inplace=True)
+APload_df.rename(columns={'Unnamed: 1_level_0': 'IMPRS Product'}, inplace=True)
+
+
+
+
+APload_df, combined_df = APload_df.align(combined_df, axis=1, copy=False)
+
+
+for i, row in combined_df.iterrows():
+    match = (APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')]).any(axis=0)
+    if match:
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','EM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','LM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','EM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','LM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Mar','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Mar','EM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Mar','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Mar','LM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Apr','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Apr','EM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Apr','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Apr','LM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'May','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'May','EM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'May','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'May','LM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jun','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jun','EM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jun','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jun','LM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jul','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jul','EM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jul','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jul','LM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Aug','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Aug','EM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Aug','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Aug','LM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Sep','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Sep','EM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Sep','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Sep','LM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Oct','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Oct','EM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Oct','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Oct','LM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Nov','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Nov','EM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Nov','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Nov','LM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','EM')]
+        APload_df.loc[APload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','LM')]
+
+
+
+SAload_df = pd.read_excel(output_file, header=[3,4,5], sheet_name='SA Load')
+
+SAload_df.rename(columns={'Unnamed: 0_level_0': 'Concatenate'}, inplace=True)
+SAload_df.rename(columns={'Unnamed: 0_level_2': 'Concatenate'}, inplace=True)
+SAload_df.rename(columns={'Unnamed: 4_level_0': 'Market'}, inplace=True)
+SAload_df.rename(columns={'Unnamed: 4_level_2': 'Market'}, inplace=True)
+SAload_df.rename(columns={'Unnamed: 2_level_0': 'GMCF Product'}, inplace=True)
+SAload_df.rename(columns={'Unnamed: 3_level_0': 'Assembly Source'}, inplace=True)
+SAload_df.rename(columns={'Unnamed: 1_level_0': 'IMPRS Product'}, inplace=True)
+
+
+
+
+SAload_df, combined_df = SAload_df.align(combined_df, axis=1, copy=False)
+
+
+for i, row in combined_df.iterrows():
+    match = (SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')]).any(axis=0)
+    if match:
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','EM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','LM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','EM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','LM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Mar','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Mar','EM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Mar','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Mar','LM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Apr','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Apr','EM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Apr','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Apr','LM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'May','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'May','EM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'May','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'May','LM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jun','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jun','EM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jun','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jun','LM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jul','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jul','EM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jul','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jul','LM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Aug','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Aug','EM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Aug','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Aug','LM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Sep','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Sep','EM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Sep','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Sep','LM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Oct','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Oct','EM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Oct','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Oct','LM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Nov','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Nov','EM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Nov','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Nov','LM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','EM')]
+        SAload_df.loc[SAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','LM')]
+
+
+MEAload_df = pd.read_excel(output_file, header=[3,4,5], sheet_name='MEA Load')
+
+MEAload_df.rename(columns={'Unnamed: 0_level_0': 'Concatenate'}, inplace=True)
+MEAload_df.rename(columns={'Unnamed: 0_level_2': 'Concatenate'}, inplace=True)
+MEAload_df.rename(columns={'Unnamed: 4_level_0': 'Market'}, inplace=True)
+MEAload_df.rename(columns={'Unnamed: 4_level_2': 'Market'}, inplace=True)
+MEAload_df.rename(columns={'Unnamed: 2_level_0': 'GMCF Product'}, inplace=True)
+MEAload_df.rename(columns={'Unnamed: 3_level_0': 'Assembly Source'}, inplace=True)
+MEAload_df.rename(columns={'Unnamed: 1_level_0': 'IMPRS Product'}, inplace=True)
+
+
+
+
+MEAload_df, combined_df = MEAload_df.align(combined_df, axis=1, copy=False)
+
+
+for i, row in combined_df.iterrows():
+    match = (MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')]).any(axis=0)
+    if match:
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','EM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jan','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jan','LM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','EM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Feb','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Feb','LM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Mar','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Mar','EM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Mar','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Mar','LM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Apr','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Apr','EM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Apr','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Apr','LM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'May','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'May','EM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'May','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'May','LM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jun','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jun','EM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jun','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jun','LM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jul','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jul','EM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Jul','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Jul','LM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Aug','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Aug','EM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Aug','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Aug','LM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Sep','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Sep','EM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Sep','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Sep','LM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Oct','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Oct','EM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Oct','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Oct','LM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Nov','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Nov','EM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Nov','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Nov','LM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','EM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','EM')]
+        MEAload_df.loc[MEAload_df[('Concatenate', 'Concatenate', 'Concatenate')] == row[('Concatenate', 'Concatenate', 'Concatenate')], ('2023 Cumulative Mix Variance to CSP', 'Dec','LM')] = row[('2023 Cumulative Mix Variance to CSP', 'Dec','LM')]
+
+
+
+cols = [('Concatenate', 'Concatenate', 'Concatenate'),
+        ('2023 Cumulative Mix Variance to CSP', 'Jan', 'EM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Jan', 'LM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Feb', 'EM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Feb', 'LM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Mar', 'EM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Mar', 'LM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Apr', 'EM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Apr', 'LM'),
+        ('2023 Cumulative Mix Variance to CSP', 'May', 'EM'),
+        ('2023 Cumulative Mix Variance to CSP', 'May', 'LM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Jun', 'EM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Jun', 'LM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Jul', 'EM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Jul', 'LM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Aug', 'EM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Aug', 'LM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Sep', 'EM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Sep', 'LM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Oct', 'EM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Oct', 'LM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Nov', 'EM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Nov', 'LM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Dec', 'EM'),
+        ('2023 Cumulative Mix Variance to CSP', 'Dec', 'LM')]
+
+
+NAload_df.dropna(subset=[('Concatenate', 'Concatenate', 'Concatenate')], inplace=True)
+EUload_df.dropna(subset=[('Concatenate', 'Concatenate', 'Concatenate')], inplace=True)
+APload_df.dropna(subset=[('Concatenate', 'Concatenate', 'Concatenate')], inplace=True)
+SAload_df.dropna(subset=[('Concatenate', 'Concatenate', 'Concatenate')], inplace=True)
+MEAload_df.dropna(subset=[('Concatenate', 'Concatenate', 'Concatenate')], inplace=True)
+
+NAload_df = NAload_df.fillna(0)
+EUload_df = EUload_df.fillna(0)
+APload_df = APload_df.fillna(0)
+SAload_df = SAload_df.fillna(0)
+MEAload_df=MEAload_df.fillna(0)
+
+with pd.ExcelWriter(SD + '\Handshake file df.xlsx') as writer:
+    NAload_df.to_excel(writer, sheet_name='NA Load', index=True, columns=cols)
+    EUload_df.to_excel(writer, sheet_name='EU Load', index=True, columns=cols)
+    APload_df.to_excel(writer, sheet_name='AP Load', index=True, columns=cols)
+    SAload_df.to_excel(writer, sheet_name='SA Load', index=True, columns=cols)
+    MEAload_df.to_excel(writer, sheet_name='MEA Load', index=True, columns=cols)
+
+I1=py.load_workbook(SD+"\Handshake file df.xlsx")
+M1=I1.get_sheet_by_name('NA Load')
+M2=I1.get_sheet_by_name('EU Load')
+M3=I1.get_sheet_by_name('AP Load')
+M4=I1.get_sheet_by_name('SA Load')
+M5=I1.get_sheet_by_name('MEA Load')
+
+OP1=py.load_workbook(output_file)
+O1=OP1.get_sheet_by_name('NA Load')
+
+
+
+for i in range(5,M1.max_row+1):
+    O1.cell(row=i+3,column=1).value=M1.cell(row=i,column=2).value
+    O1.cell(row=i+3,column=131).value=M1.cell(row=i,column=3).value
+    O1.cell(row=i+3,column=132).value=M1.cell(row=i,column=4).value
+    O1.cell(row=i+3,column=133).value=M1.cell(row=i,column=5).value
+    O1.cell(row=i+3,column=134).value=M1.cell(row=i,column=6).value
+    O1.cell(row=i+3,column=135).value=M1.cell(row=i,column=7).value
+    O1.cell(row=i+3,column=136).value=M1.cell(row=i,column=8).value
+    O1.cell(row=i+3,column=137).value=M1.cell(row=i,column=9).value
+    O1.cell(row=i+3,column=138).value=M1.cell(row=i,column=10).value
+    O1.cell(row=i+3,column=139).value=M1.cell(row=i,column=11).value
+    O1.cell(row=i+3,column=140).value=M1.cell(row=i,column=12).value
+    O1.cell(row=i+3,column=141).value=M1.cell(row=i,column=13).value
+    O1.cell(row=i+3,column=142).value=M1.cell(row=i,column=14).value
+    O1.cell(row=i+3,column=143).value=M1.cell(row=i,column=15).value
+    O1.cell(row=i+3,column=144).value=M1.cell(row=i,column=16).value
+    O1.cell(row=i+3,column=145).value=M1.cell(row=i,column=17).value
+    O1.cell(row=i+3,column=146).value=M1.cell(row=i,column=18).value
+    O1.cell(row=i+3,column=147).value=M1.cell(row=i,column=19).value
+    O1.cell(row=i+3,column=148).value=M1.cell(row=i,column=20).value
+    O1.cell(row=i+3,column=149).value=M1.cell(row=i,column=21).value
+    O1.cell(row=i+3,column=150).value=M1.cell(row=i,column=22).value
+    O1.cell(row=i+3,column=151).value=M1.cell(row=i,column=23).value
+    O1.cell(row=i+3,column=152).value=M1.cell(row=i,column=24).value
+    O1.cell(row=i+3,column=153).value=M1.cell(row=i,column=25).value
+    O1.cell(row=i+3,column=154).value=M1.cell(row=i,column=26).value
+
+OP1.save(SD+'\Fcst 7+5 2023 Mix Handshaking Template v2.xlsx')
+
+OP2=py.load_workbook(SD+'\Fcst 7+5 2023 Mix Handshaking Template v2.xlsx')
+O2=OP2.get_sheet_by_name('EU Load')
+
+
+
+for i in range(5,M2.max_row+1):
+    O2.cell(row=i+3,column=1).value=M2.cell(row=i,column=2).value
+    O2.cell(row=i+3,column=131).value=M2.cell(row=i,column=3).value
+    O2.cell(row=i+3,column=132).value=M2.cell(row=i,column=4).value
+    O2.cell(row=i+3,column=133).value=M2.cell(row=i,column=5).value
+    O2.cell(row=i+3,column=134).value=M2.cell(row=i,column=6).value
+    O2.cell(row=i+3,column=135).value=M2.cell(row=i,column=7).value
+    O2.cell(row=i+3,column=136).value=M2.cell(row=i,column=8).value
+    O2.cell(row=i+3,column=137).value=M2.cell(row=i,column=9).value
+    O2.cell(row=i+3,column=138).value=M2.cell(row=i,column=10).value
+    O2.cell(row=i+3,column=139).value=M2.cell(row=i,column=11).value
+    O2.cell(row=i+3,column=140).value=M2.cell(row=i,column=12).value
+    O2.cell(row=i+3,column=141).value=M2.cell(row=i,column=13).value
+    O2.cell(row=i+3,column=142).value=M2.cell(row=i,column=14).value
+    O2.cell(row=i+3,column=143).value=M2.cell(row=i,column=15).value
+    O2.cell(row=i+3,column=144).value=M2.cell(row=i,column=16).value
+    O2.cell(row=i+3,column=145).value=M2.cell(row=i,column=17).value
+    O2.cell(row=i+3,column=146).value=M2.cell(row=i,column=18).value
+    O2.cell(row=i+3,column=147).value=M2.cell(row=i,column=19).value
+    O2.cell(row=i+3,column=148).value=M2.cell(row=i,column=20).value
+    O2.cell(row=i+3,column=149).value=M2.cell(row=i,column=21).value
+    O2.cell(row=i+3,column=150).value=M2.cell(row=i,column=22).value
+    O2.cell(row=i+3,column=151).value=M2.cell(row=i,column=23).value
+    O2.cell(row=i+3,column=152).value=M2.cell(row=i,column=24).value
+    O2.cell(row=i+3,column=153).value=M2.cell(row=i,column=25).value
+    O2.cell(row=i+3,column=154).value=M2.cell(row=i,column=26).value
+
+OP2.save(SD+'\Fcst 7+5 2023 Mix Handshaking Template v2.xlsx')
+
+OP3=py.load_workbook(SD+'\Fcst 7+5 2023 Mix Handshaking Template v2.xlsx')
+O3=OP3.get_sheet_by_name('AP Load')
+
+for i in range(5,M3.max_row+1):
+    O3.cell(row=i+3,column=1).value=M3.cell(row=i,column=2).value
+    O3.cell(row=i+3,column=131).value=M3.cell(row=i,column=3).value
+    O3.cell(row=i+3,column=132).value=M3.cell(row=i,column=4).value
+    O3.cell(row=i+3,column=133).value=M3.cell(row=i,column=5).value
+    O3.cell(row=i+3,column=134).value=M3.cell(row=i,column=6).value
+    O3.cell(row=i+3,column=135).value=M3.cell(row=i,column=7).value
+    O3.cell(row=i+3,column=136).value=M3.cell(row=i,column=8).value
+    O3.cell(row=i+3,column=137).value=M3.cell(row=i,column=9).value
+    O3.cell(row=i+3,column=138).value=M3.cell(row=i,column=10).value
+    O3.cell(row=i+3,column=139).value=M3.cell(row=i,column=11).value
+    O3.cell(row=i+3,column=140).value=M3.cell(row=i,column=12).value
+    O3.cell(row=i+3,column=141).value=M3.cell(row=i,column=13).value
+    O3.cell(row=i+3,column=142).value=M3.cell(row=i,column=14).value
+    O3.cell(row=i+3,column=143).value=M3.cell(row=i,column=15).value
+    O3.cell(row=i+3,column=144).value=M3.cell(row=i,column=16).value
+    O3.cell(row=i+3,column=145).value=M3.cell(row=i,column=17).value
+    O3.cell(row=i+3,column=146).value=M3.cell(row=i,column=18).value
+    O3.cell(row=i+3,column=147).value=M3.cell(row=i,column=19).value
+    O3.cell(row=i+3,column=148).value=M3.cell(row=i,column=20).value
+    O3.cell(row=i+3,column=149).value=M3.cell(row=i,column=21).value
+    O3.cell(row=i+3,column=150).value=M3.cell(row=i,column=22).value
+    O3.cell(row=i+3,column=151).value=M3.cell(row=i,column=23).value
+    O3.cell(row=i+3,column=152).value=M3.cell(row=i,column=24).value
+    O3.cell(row=i+3,column=153).value=M3.cell(row=i,column=25).value
+    O3.cell(row=i+3,column=154).value=M3.cell(row=i,column=26).value
+
+OP3.save(SD+'\Fcst 7+5 2023 Mix Handshaking Template v2.xlsx')
+
+OP4=py.load_workbook(SD+'\Fcst 7+5 2023 Mix Handshaking Template v2.xlsx')
+O4=OP4.get_sheet_by_name('SA Load')
+
+
+for i in range(5,M4.max_row+1):
+   O4.cell(row=i+3,column=1).value=M4.cell(row=i,column=2).value
+   O4.cell(row=i+3,column=134).value=M4.cell(row=i,column=3).value
+   O4.cell(row=i+3,column=135).value=M4.cell(row=i,column=4).value
+   O4.cell(row=i+3,column=136).value=M4.cell(row=i,column=5).value
+   O4.cell(row=i+3,column=137).value=M4.cell(row=i,column=6).value
+   O4.cell(row=i+3,column=138).value=M4.cell(row=i,column=7).value
+   O4.cell(row=i+3,column=139).value=M4.cell(row=i,column=8).value
+   O4.cell(row=i+3,column=140).value=M4.cell(row=i,column=9).value
+   O4.cell(row=i+3,column=141).value=M4.cell(row=i,column=10).value
+   O4.cell(row=i+3,column=142).value=M4.cell(row=i,column=11).value
+   O4.cell(row=i+3,column=143).value=M4.cell(row=i,column=12).value
+   O4.cell(row=i+3,column=144).value=M4.cell(row=i,column=13).value
+   O4.cell(row=i+3,column=145).value=M4.cell(row=i,column=14).value
+   O4.cell(row=i+3,column=146).value=M4.cell(row=i,column=15).value
+   O4.cell(row=i+3,column=147).value=M4.cell(row=i,column=16).value
+   O4.cell(row=i+3,column=148).value=M4.cell(row=i,column=17).value
+   O4.cell(row=i+3,column=149).value=M4.cell(row=i,column=18).value
+   O4.cell(row=i+3,column=150).value=M4.cell(row=i,column=19).value
+   O4.cell(row=i+3,column=151).value=M4.cell(row=i,column=20).value
+   O4.cell(row=i+3,column=152).value=M4.cell(row=i,column=21).value
+   O4.cell(row=i+3,column=153).value=M4.cell(row=i,column=22).value
+   O4.cell(row=i+3,column=154).value=M4.cell(row=i,column=23).value
+   O4.cell(row=i+3,column=155).value=M4.cell(row=i,column=24).value
+   O4.cell(row=i+3,column=156).value=M4.cell(row=i,column=25).value
+   O4.cell(row=i+3,column=157).value=M4.cell(row=i,column=26).value
+
+
+OP4.save(SD+'\Fcst 7+5 2023 Mix Handshaking Template v2.xlsx')
+
+OP5=py.load_workbook(SD+'\Fcst 7+5 2023 Mix Handshaking Template v2.xlsx')
+O5=OP5.get_sheet_by_name('MEA Load')
+
+
+for i in range(5,M5.max_row+1):
+    O5.cell(row=i+3,column=1).value=M5.cell(row=i,column=2).value
+    O5.cell(row=i+3,column=130).value=M5.cell(row=i,column=3).value
+    O5.cell(row=i+3,column=131).value=M5.cell(row=i,column=4).value
+    O5.cell(row=i+3,column=132).value=M5.cell(row=i,column=5).value
+    O5.cell(row=i+3,column=133).value=M5.cell(row=i,column=6).value
+    O5.cell(row=i+3,column=134).value=M5.cell(row=i,column=7).value
+    O5.cell(row=i+3,column=135).value=M5.cell(row=i,column=8).value
+    O5.cell(row=i+3,column=136).value=M5.cell(row=i,column=9).value
+    O5.cell(row=i+3,column=137).value=M5.cell(row=i,column=10).value
+    O5.cell(row=i+3,column=138).value=M5.cell(row=i,column=11).value
+    O5.cell(row=i+3,column=139).value=M5.cell(row=i,column=12).value
+    O5.cell(row=i+3,column=140).value=M5.cell(row=i,column=13).value
+    O5.cell(row=i+3,column=141).value=M5.cell(row=i,column=14).value
+    O5.cell(row=i+3,column=142).value=M5.cell(row=i,column=15).value
+    O5.cell(row=i+3,column=143).value=M5.cell(row=i,column=16).value
+    O5.cell(row=i+3,column=144).value=M5.cell(row=i,column=17).value
+    O5.cell(row=i+3,column=145).value=M5.cell(row=i,column=18).value
+    O5.cell(row=i+3,column=146).value=M5.cell(row=i,column=19).value
+    O5.cell(row=i+3,column=147).value=M5.cell(row=i,column=20).value
+    O5.cell(row=i+3,column=148).value=M5.cell(row=i,column=21).value
+    O5.cell(row=i+3,column=149).value=M5.cell(row=i,column=22).value
+    O5.cell(row=i+3,column=150).value=M5.cell(row=i,column=23).value
+    O5.cell(row=i+3,column=151).value=M5.cell(row=i,column=24).value
+    O5.cell(row=i+3,column=152).value=M5.cell(row=i,column=25).value
+    O5.cell(row=i+3,column=153).value=M5.cell(row=i,column=26).value
+
+
+OP5.save(SD+'\Fcst 7+5 2023 Mix Handshaking Template v2.xlsx')
+
+print("file is ready copy and paste")
