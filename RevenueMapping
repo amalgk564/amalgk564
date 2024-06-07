@@ -1,0 +1,264 @@
+import pandas as pd
+import openpyxl as py
+import tkinter as tk
+from tkinter import filedialog
+from tkinter import *
+from tkinter import simpledialog
+
+root = Tk()
+SD = filedialog.askdirectory(title="Select folder to save output file")
+DTA = filedialog.askopenfilename(initialdir="/", title="Revenue Input", filetypes=(("allfiles", "*.xlsx"), ("allfiles", "*.*")))
+output_file = tk.filedialog.askopenfilename(initialdir="/", title="Select output file- MIS File", filetypes=(("allfiles", "*.xlsx"), ("allfiles", "*.*")))
+root.destroy()
+
+Revenue_Input_df = pd.read_excel(DTA, header=[3], sheet_name='Customer-wise')
+Revenue_Input_df["Product"] = Revenue_Input_df["Product"].str.replace('TV','TokenVault')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('HDFC BANK LIMITED','Hdfc Bank')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('HDFC Bank','Hdfc Bank')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Icici Bank','ICICI Bank')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('AXIS BANK LIMITED','Axis Bank')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Federal Bank Limited','Federal Bank')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Interswitch Limited','Interswitch')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('City Union Bank','CUB')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('BDO Unibank Inc','BDO Unibank Inc.')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Mastercard Technologies, LLC','MasterCard USA')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Bank of Baroda (Fiji)','Bank of Baroda - Fiji')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Bank of Baroda (Kenya) Ltd','Bank of Baroda - Kenya')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Bank of Baroda (New Zealand) Ltd','Bank of Baroda - NZ')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Bank of Baroda, (Botswana) Ltd','Bank of Baroda - Botswana')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Bank of Baroda, (Uganda) Ltd','Bank of Baroda - Uganda')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Bank of Baroda, Mauritius','Bank of Baroda - Mauritius')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Bank of Baroda, Oman','Bank of Baroda - Oman')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Bank of Baroda, Seychelles','Bank of Baroda - Seychelles')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Bank of Baroda, UAE','Bank of Baroda – UAE')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Baroda Gujarat Gramin Bank','Baroda Gujarat Gramin Bank ( DGGB)')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Baroda UP Bank','Baroda Uttar Pradesh Gramin Bank')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Canara Bank','Canara Bank (DBS)')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Chaitanya Godavari Grameena Bank','Chaitanya Godavari Grameena Bank ( New)')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Dreamfolks','DreamFolks')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('First Data India Private Limited','First Data India Pvt Ltd')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Fiserv APAC Pte. Ltd','First Data Singapore Pte Limited')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('GIM','Groupement Interbancaire Monétique de')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('National Development Bank PLC ','National development bank (NDB)')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Hatton National Bank PLC Card Centre','Hatton National Bank')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('IDFC First Bank Ltd','IDFC First Bank Limited')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Karnataka Gramin Bank (PKGB)','Karnataka Gramin Bank')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('SHB Finance - Vietnam','SHB Finance Vietnam')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Seylan Bank PLC','Seylan Bank')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('South Indian Bank Limited','SIB')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('Spice Money Limited','Spice Money')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('The Hongkong and Shanghai Banking Corporation Limited','HSBC India')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('State Bank of India (Bangladesh)','State Bank of India - Bangladesh')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('State Bank of India (Maldives)','State Bank Of India- Maldives')
+Revenue_Input_df["Customer Name"] = Revenue_Input_df["Customer Name"].str.replace('SHB Finance - Vietnam','SHB Finance Vietnam')
+
+
+Revenue_Input_df['Combined'] = Revenue_Input_df['Product'] + Revenue_Input_df['Revenue Line Item'] + Revenue_Input_df['Customer Name']
+Revenue_Input_df["Combined"] = Revenue_Input_df["Combined"].str.replace('3DS 1.0Transaction RevenueFederal Bank','3DS 1.0Transaction RevenueFederal Bank ACS')
+Revenue_Input_df["Combined"] = Revenue_Input_df["Combined"].str.replace('BankEzyProfessional Services RevenuePayU Payments Private Limited','BankEzyProfessional Services RevenuePayU Payments (ZipCredit)')
+Revenue_Input_df["Combined"] = Revenue_Input_df["Combined"].str.replace('BankEzyTransaction RevenuePayU Finance India Pvt','BankEzyTransaction RevenuePayU Finance (ZipCredit)')
+Revenue_Input_df["Combined"] = Revenue_Input_df["Combined"].str.replace('BankEzyTransaction RevenuePayU Payments Private Limited','BankEzyTransaction RevenuePayU Payments (ZipCredit)')
+Revenue_Input_df["Combined"] = Revenue_Input_df["Combined"].str.replace('3DS 1.0Transaction RevenueHSBC Bank Ltd. ( Sri Lanka )','3DS 1.0Transaction RevenueHSBC CBH (Srilanka)')
+Revenue_Input_df["Combined"] = Revenue_Input_df["Combined"].str.replace('RBATransaction RevenueHSBC Bank Ltd. ( Manila )','RBATransaction RevenueHSBC Bank Ltd. ( Manila )')
+Revenue_Input_df["Combined"] = Revenue_Input_df["Combined"].str.replace('RBATransaction RevenueHSBC Bank Ltd. ( Vietnam )','RBATransaction RevenueHSBC Bank Ltd. ( Vietnam )')
+
+
+
+Revenue_Input_df.dropna(subset=[('Combined')], inplace=True)
+Revenue_Input_df.to_excel(SD+'\Inputdfdf.xlsx', index=True)
+
+
+other_revenue_df = Revenue_Input_df[Revenue_Input_df['LOB'] == "Other revenue"]
+other_revenue_total = other_revenue_df['Total'].values
+other_revenue_total=int(other_revenue_total[0])
+
+
+
+FRM_df = pd.read_excel(output_file, header=[4], sheet_name='Payment Security_FRM')
+FRM_Load_df = FRM_df[['Customer Name', 'Entity','Revenue Type','Product - finance']]
+FRM_Load_df['Combined'] = FRM_Load_df['Product - finance'] + FRM_Load_df['Revenue Type'] + FRM_Load_df['Customer Name']
+FRM_Load_df = FRM_Load_df.merge(Revenue_Input_df[['Combined', 'Total']], on='Combined', how='left')
+
+
+Payments_df = pd.read_excel(output_file, header=[4], sheet_name='Mobile Payments')
+Payments_Load_df = Payments_df[['Customer Name', 'Entity','Revenue Type','Product - finance']]
+Payments_Load_df['Combined'] = Payments_Load_df['Product - finance'] + Payments_Load_df['Revenue Type'] + Payments_Load_df['Customer Name']
+Payments_Load_df = Payments_Load_df.merge(Revenue_Input_df[['Combined', 'Total']], on='Combined', how='left')
+Payments_Load_df.to_excel(SD+'\Paymentsdf.xlsx', index=True)
+
+
+
+PG_Prepaid_df = pd.read_excel(output_file, header=[3], sheet_name='PG_Prepaid')
+PG_Prepaid_Load_df = PG_Prepaid_df[['Customer Name', 'Entity','Nature','Product - finance']]
+PG_Prepaid_Load_df['Combined'] = PG_Prepaid_Load_df['Product - finance'] + PG_Prepaid_Load_df['Nature'] + PG_Prepaid_Load_df['Customer Name']
+PG_Prepaid_Load_df = PG_Prepaid_Load_df.merge(Revenue_Input_df[['Combined', 'Total']], on='Combined', how='left')
+
+
+MIS_output_df = pd.concat([FRM_Load_df, Payments_Load_df, PG_Prepaid_Load_df], axis=0)
+MIS_output_df.to_excel(SD+'\MIS_out.xlsx', index=True)
+
+
+Revenue_combined = set(Revenue_Input_df['Combined'])
+Output_combined = set(MIS_output_df['Combined'])
+entries_not_in_output = Revenue_combined - Output_combined
+entries_not_in_output_df = entries_not_in_output_df[['LOB','Product','Revenue Line Item','Customer Name','Total']]
+entries_not_in_output_df = Revenue_Input_df[Revenue_Input_df['Combined'].isin(entries_not_in_output)]
+entries_not_in_output_df.to_excel(SD+'\Missing.xlsx', index=True)
+
+
+
+def get_Current_Month1():
+    new_col_name = simpledialog.askstring(title="Actuals Month", prompt="Enter the Current Month:")
+    return new_col_name
+
+root = tk.Tk()
+root.withdraw()
+
+Current_Month1 = get_Current_Month1()
+
+
+with pd.ExcelWriter(SD + '\dfoutput.xlsx') as writer:
+    FRM_Load_df.to_excel(writer, sheet_name='FRM', index=True)
+    Payments_Load_df.to_excel(writer, sheet_name='Payments', index=True)
+    PG_Prepaid_Load_df.to_excel(writer, sheet_name='PG', index=True)
+    
+
+I1=py.load_workbook(SD+"\dfoutput.xlsx")
+
+M1=I1.get_sheet_by_name('FRM')
+M2=I1.get_sheet_by_name('Payments')
+M3=I1.get_sheet_by_name('PG')
+
+
+OP1=py.load_workbook(output_file)
+O1=OP1.get_sheet_by_name('Payment Security_FRM')
+
+
+
+if Current_Month1 == "April":
+    for i in range(2,M1.max_row+1):
+        O1.cell(row=i+4,column=79).value=M1.cell(row=i,column=7).value
+elif Current_Month1 == 'May':
+    for i in range(2,M1.max_row+1):
+        O1.cell(row=i+4,column=80).value=M1.cell(row=i,column=7).value
+elif Current_Month1 == 'June':
+    for i in range(2,M1.max_row+1):
+        O1.cell(row=i+4,column=81).value=M1.cell(row=i,column=7).value
+elif Current_Month1 == 'July':
+    for i in range(2,M1.max_row+1):
+        O1.cell(row=i+4,column=82).value=M1.cell(row=i,column=7).value
+elif Current_Month1 == 'August':
+    for i in range(2,M1.max_row+1):
+        O1.cell(row=i+4,column=83).value=M1.cell(row=i,column=7).value
+elif Current_Month1 == 'September':
+    for i in range(2,M1.max_row+1):
+        O1.cell(row=i+4,column=84).value=M1.cell(row=i,column=7).value
+elif Current_Month1 == 'October':
+    for i in range(2,M1.max_row+1):
+        O1.cell(row=i+4,column=85).value=M1.cell(row=i,column=7).value
+elif Current_Month1 == 'November':
+    for i in range(2,M1.max_row+1):
+        O1.cell(row=i+4,column=86).value=M1.cell(row=i,column=7).value
+elif Current_Month1 == 'December':
+    for i in range(2,M1.max_row+1):
+        O1.cell(row=i+4,column=87).value=M1.cell(row=i,column=7).value
+elif Current_Month1 == 'January':
+    for i in range(2,M1.max_row+1):
+        O1.cell(row=i+4,column=88).value=M1.cell(row=i,column=7).value
+elif Current_Month1 == 'February':
+    for i in range(2,M1.max_row+1):
+        O1.cell(row=i+4,column=89).value=M1.cell(row=i,column=7).value
+else:
+    for i in range(2,M1.max_row+1):
+        O1.cell(row=i+4,column=90).value=M1.cell(row=i,column=7).value
+
+OP1.save(SD+'\Wibmo MIS .xlsx')
+
+
+OP2=py.load_workbook(SD+'\Wibmo MIS .xlsx')
+O2=OP2.get_sheet_by_name('Mobile Payments')
+
+
+if Current_Month1 == "April":
+    for i in range(2,M2.max_row+1):
+        O2.cell(row=i+4,column=80).value=M2.cell(row=i,column=7).value
+elif Current_Month1 == 'May':
+    for i in range(2,M2.max_row+1):
+        O2.cell(row=i+4,column=81).value=M2.cell(row=i,column=7).value
+elif Current_Month1 == 'June':
+    for i in range(2,M2.max_row+1):
+        O2.cell(row=i+4,column=82).value=M2.cell(row=i,column=7).value
+elif Current_Month1 == 'July':
+    for i in range(2,M2.max_row+1):
+        O2.cell(row=i+4,column=83).value=M2.cell(row=i,column=7).value
+elif Current_Month1 == 'August':
+    for i in range(2,M2.max_row+1):
+        O2.cell(row=i+4,column=84).value=M2.cell(row=i,column=7).value
+elif Current_Month1 == 'September':
+    for i in range(2,M2.max_row+1):
+        O2.cell(row=i+4,column=85).value=M2.cell(row=i,column=7).value
+elif Current_Month1 == 'October':
+    for i in range(2,M2.max_row+1):
+        O2.cell(row=i+4,column=86).value=M2.cell(row=i,column=7).value
+elif Current_Month1 == 'November':
+    for i in range(2,M2.max_row+1):
+        O2.cell(row=i+4,column=87).value=M2.cell(row=i,column=7).value
+elif Current_Month1 == 'December':
+    for i in range(2,M2.max_row+1):
+        O2.cell(row=i+4,column=88).value=M2.cell(row=i,column=7).value
+elif Current_Month1 == 'January':
+    for i in range(2,M2.max_row+1):
+        O2.cell(row=i+4,column=89).value=M2.cell(row=i,column=7).value
+elif Current_Month1 == 'February':
+    for i in range(2,M2.max_row+1):
+        O2.cell(row=i+4,column=90).value=M2.cell(row=i,column=7).value
+else:
+    for i in range(2,M2.max_row+1):
+        O2.cell(row=i+4,column=91).value=M2.cell(row=i,column=7).value
+
+OP2.save(SD+'\Wibmo MIS .xlsx')
+
+
+OP3=py.load_workbook(SD+'\Wibmo MIS .xlsx')
+O3=OP3.get_sheet_by_name('PG_Prepaid')
+
+if Current_Month1 == "April":
+    for i in range(2,M3.max_row+1):
+        O3.cell(row=i+3,column=80).value=M3.cell(row=i,column=7).value
+elif Current_Month1 == 'May':
+    for i in range(2,M3.max_row+1):
+        O3.cell(row=i+3,column=81).value=M3.cell(row=i,column=7).value
+elif Current_Month1 == 'June':
+    for i in range(2,M3.max_row+1):
+        O3.cell(row=i+3,column=82).value=M3.cell(row=i,column=7).value
+elif Current_Month1 == 'July':
+    for i in range(2,M3.max_row+1):
+        O3.cell(row=i+3,column=83).value=M3.cell(row=i,column=7).value
+elif Current_Month1 == 'August':
+    for i in range(2,M3.max_row+1):
+        O3.cell(row=i+3,column=84).value=M3.cell(row=i,column=7).value
+elif Current_Month1 == 'September':
+    for i in range(2,M3.max_row+1):
+        O3.cell(row=i+3,column=85).value=M3.cell(row=i,column=7).value
+elif Current_Month1 == 'October':
+    for i in range(2,M3.max_row+1):
+        O3.cell(row=i+3,column=86).value=M3.cell(row=i,column=7).value
+elif Current_Month1 == 'November':
+    for i in range(2,M3.max_row+1):
+        O3.cell(row=i+3,column=87).value=M3.cell(row=i,column=7).value
+elif Current_Month1 == 'December':
+    for i in range(2,M3.max_row+1):
+        O3.cell(row=i+3,column=88).value=M3.cell(row=i,column=7).value
+elif Current_Month1 == 'January':
+    for i in range(2,M3.max_row+1):
+        O3.cell(row=i+3,column=89).value=M3.cell(row=i,column=7).value
+elif Current_Month1 == 'February':
+    for i in range(2,M3.max_row+1):
+        O3.cell(row=i+3,column=90).value=M3.cell(row=i,column=7).value
+else:
+    for i in range(2,M3.max_row+1):
+        O3.cell(row=i+3,column=91).value=M3.cell(row=i,column=7).value
+
+
+OP3.save(SD+'\Wibmo MIS .xlsx')
+
